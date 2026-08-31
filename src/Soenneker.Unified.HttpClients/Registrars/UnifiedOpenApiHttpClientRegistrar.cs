@@ -6,7 +6,7 @@ using Soenneker.Utils.HttpClientCache.Registrar;
 namespace Soenneker.Unified.HttpClients.Registrars;
 
 /// <summary>
-/// Registers the OpenAPI HttpClient wrapper for dependency injection.
+/// Registers authenticated HTTP clients for the Unified API.
 /// </summary>
 public static class UnifiedOpenApiHttpClientRegistrar
 {

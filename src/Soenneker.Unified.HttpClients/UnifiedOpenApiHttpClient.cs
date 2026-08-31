@@ -11,13 +11,13 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Unified.HttpClients;
 
-///<inheritdoc cref="IUnifiedOpenApiHttpClient"/>
 public sealed class UnifiedOpenApiHttpClient : IUnifiedOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
     private readonly IConfiguration _config;
+    private readonly string _cacheKey = $"{nameof(UnifiedOpenApiHttpClient)}:{Guid.NewGuid():N}";
 
-    private const string _prodBaseUrl = "https://api.unified.to";
+    private const string _prodBaseUrl = "https://api.unified.to/";
 
     public UnifiedOpenApiHttpClient(IHttpClientCache httpClientCache, IConfiguration config)
     {
@@ -27,11 +27,11 @@ public sealed class UnifiedOpenApiHttpClient : IUnifiedOpenApiHttpClient
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        return _httpClientCache.Get(nameof(UnifiedOpenApiHttpClient), (config: _config, baseUrl: _config["Unified:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
+        return _httpClientCache.Get(_cacheKey, (config: _config, baseUrl: _config["Unified:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
         {
             var apiKey = state.config.GetValueStrict<string>("Unified:ApiKey");
-            string authHeaderName = state.config["Unified:AuthHeaderName"] ?? "Bearer {token}";
-            string authHeaderValueTemplate = state.config["Unified:AuthHeaderValueTemplate"] ?? "{token}";
+            string authHeaderName = state.config["Unified:AuthHeaderName"] ?? "Authorization";
+            string authHeaderValueTemplate = state.config["Unified:AuthHeaderValueTemplate"] ?? "Bearer {token}";
             string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
 
             return new HttpClientOptions
@@ -45,20 +45,13 @@ public sealed class UnifiedOpenApiHttpClient : IUnifiedOpenApiHttpClient
         }, cancellationToken);
     }
 
-    /// <summary>
-    /// Releases resources used by the current instance.
-    /// </summary>
     public void Dispose()
     {
-        _httpClientCache.RemoveSync(nameof(UnifiedOpenApiHttpClient));
+        _httpClientCache.RemoveSync(_cacheKey);
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
-        return _httpClientCache.Remove(nameof(UnifiedOpenApiHttpClient));
+        return _httpClientCache.Remove(_cacheKey);
     }
 }
