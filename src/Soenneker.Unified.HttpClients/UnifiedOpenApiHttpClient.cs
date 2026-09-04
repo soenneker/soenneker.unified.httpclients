@@ -11,6 +11,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Unified.HttpClients;
 
+/// <inheritdoc cref="IUnifiedOpenApiHttpClient" />
 public sealed class UnifiedOpenApiHttpClient : IUnifiedOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
