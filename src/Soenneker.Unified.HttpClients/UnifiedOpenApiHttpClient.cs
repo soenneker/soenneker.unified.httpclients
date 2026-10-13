@@ -30,7 +30,7 @@ public sealed class UnifiedOpenApiHttpClient : IUnifiedOpenApiHttpClient
     {
         return _httpClientCache.Get(_cacheKey, (config: _config, baseUrl: _config["Unified:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
         {
-            var apiKey = state.config.GetValueStrict<string>("Unified:ApiKey");
+            var apiKey = state.config.GetStringStrict("Unified:ApiKey");
             string authHeaderName = state.config["Unified:AuthHeaderName"] ?? "Authorization";
             string authHeaderValueTemplate = state.config["Unified:AuthHeaderValueTemplate"] ?? "Bearer {token}";
             string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
